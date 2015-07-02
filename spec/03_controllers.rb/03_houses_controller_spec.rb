@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "HousesController" do
   describe "GET /houses" do
     before do
-      @cottage = House.create(address: "123 S. Seaside Ln.")
+      @house = House.create(address: "123 S. Seaside Ln.")
       @mansion = House.create(address: "1019 Expensive Ave.")
       @skittles = Candy.create(:name => "Skittles", :size => 3, :pieces => 20)
       @milkyway = Candy.create(:name => "Milkyway", :size => 2, :pieces => 2)
@@ -14,7 +14,7 @@ describe "HousesController" do
       @mindy = Kid.create(:name => "Mindy Kaling", :age => 12)
       @mindy.bucket = Bucket.create
       @mindy.bucket.candies << @sourpatch
-      @cottage.candies << [@redhots, @twix, @mints, @sourpatch] 
+      @house.candies << [@redhots, @twix, @mints, @sourpatch]
       @mansion.candies << [@skittles, @milkyway]
       get '/houses'
     end
@@ -41,14 +41,14 @@ describe "HousesController" do
 
   describe "GET /houses/:id" do
     before do
-      @cottage = House.create(address: "123 S. Seaside Ln.")
+      @house = House.create(address: "123 S. Seaside Ln.")
       @redhots = Candy.create(:name => "Redhots", :size => 2, :pieces => 10)
       @twix = Candy.create(:name => "Twix", :size => 2, :pieces => 2)
       @mints = Candy.create(:name => "Junior Mints", :size => 4, :pieces => 20)
       @sourpatch = Candy.create(:name => "Sour Patch Kids", :size => 3, :pieces => 15)
-      @cottage.candies << [@redhots, @twix, @mints, @sourpatch]
+      @house.candies << [@redhots, @twix, @mints, @sourpatch]
       @kid = Kid.create(:name => "Tina Fey", :age => 12)
-      get "/houses/#{@cottage.id}"
+      get "/houses/#{@house.id}"
     end
     it "allows you to see a house" do
       expect(last_response).to be_ok
@@ -60,7 +60,7 @@ describe "HousesController" do
     end
 
     it "displays a form that allows kids to trick-or-treat the house" do
-      expect(last_response.body).to include("<form action=\"/houses/#{@cottage.id}/trick-or-treat\"")
+      expect(last_response.body).to include("<form action=\"/houses/#{@house.id}/trick-or-treat\"")
       expect(last_response.body).to include("Tina Fey")
     end
   end
@@ -75,7 +75,7 @@ describe "HousesController" do
       end
       it "should render a form for a new house" do
         get "/houses/new"
-        expect(last_response.body).to include("<form action=\"/houses\" method=\"POST\"")
+        expect(last_response.body).to include("<form action=\"/houses\" method=\"POST\">")
         expect(last_response.body).to include("</form>")
       end
     end
@@ -101,10 +101,10 @@ describe "HousesController" do
       @avis_bucket = Bucket.create(:kid_id => avi.id)
       
       # make cottage and candies
-      @cottage = House.create(address: "123 S. Seaside Ln.")
-      @redhots = Candy.create(:name => "Redhots", :size => 2, :pieces => 10, :house_id => @cottage.id)
-      @hersheys = Candy.create(:name => "Hersheys", :size => 1, :pieces => 2, :house_id => @cottage.id, :bucket_id => @avis_bucket.id)
-      @sourpatch = Candy.create(:name => "Sourpatch", :size => 3, :pieces => 20, :house_id => @cottage.id)
+      @house = House.create(address: "123 S. Seaside Ln.")
+      @redhots = Candy.create(:name => "Redhots", :size => 2, :pieces => 10, :house_id => @house.id)
+      @hersheys = Candy.create(:name => "Hersheys", :size => 1, :pieces => 2, :house_id => @house.id, :bucket_id => @avis_bucket.id)
+      @sourpatch = Candy.create(:name => "Sourpatch", :size => 3, :pieces => 20, :house_id => @house.id)
      
       # make Tina
       @tina = Kid.create(:name => "Tina", :age => 12)
@@ -115,11 +115,11 @@ describe "HousesController" do
       Bucket.create(:kid_id => @mindy.id)
 
       # make tina trick-or-treat
-      patch "/houses/#{@cottage.id}/trick-or-treat", {:kid_id => @tina.id}
+      patch "/houses/#{@house.id}/trick-or-treat", {:kid_id => @tina.id}
       follow_redirect!
     end
     it "redirects to the house's show page" do
-      expect(last_request.url).to eq("http://example.org/houses/#{@cottage.id}")
+      expect(last_request.url).to eq("http://example.org/houses/#{@house.id}")
     end
     it "removes a candy from the house's show page after it was given to a kid" do
       expect(last_response.body).to_not include(@redhots.name)
@@ -130,7 +130,7 @@ describe "HousesController" do
     end
     it "does not reassign candy (only gives out unclaimed candy)" do
       original_num_of_candies = @mindy.bucket.candies.count
-      patch "/houses/#{@cottage.id}/trick-or-treat", {:kid_id => @mindy.id}
+      patch "/houses/#{@house.id}/trick-or-treat", {:kid_id => @mindy.id}
       follow_redirect!
       expect(@mindy.bucket.candies).to_not include(@hersheys)
       expect(@mindy.bucket.candies).to include(@sourpatch)
@@ -140,12 +140,12 @@ describe "HousesController" do
 
   describe "PATCH /houses/:id" do
     before do
-      @cottage = House.create(address: "321 N. Seaslide Nl.")
-      patch "/houses/#{@cottage.id}", {:house => {:address => "123 S. Seaside Ln."}}
+      @house = House.create(address: "321 N. Seaslide Nl.")
+      patch "/houses/#{@house.id}", {:house => {:address => "123 S. Seaside Ln."}}
       follow_redirect!
     end
     it "redirects to an updated house show page" do
-      expect(last_request.url).to eq("http://example.org/houses/#{@cottage.id}")
+      expect(last_request.url).to eq("http://example.org/houses/#{@house.id}")
       expect(last_response.body).to include("123 S. Seaside Ln.")
     end
   end

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry'
 
 describe "KidsController" do
   describe "GET /kids" do
@@ -76,7 +77,7 @@ describe "KidsController" do
     before do
       post "/kids", {:'kid[name]' => "Tina Fey", :'kid[age]' => 9}
       @kid = Kid.find_by(:name => "Tina Fey")
-      follow_redirect!  
+      follow_redirect!
     end
     it "redirects to the kids's show page" do
       expect(last_request.url).to eq("http://example.org/kids/#{@kid.id}")
